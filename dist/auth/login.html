@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>La Bodegona Demo — Iniciar sesión</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="/dist/assets/config.js"></script>
-  <script src="/dist/assets/common.js"></script>
+  <script src="../assets/config.js"></script>
+  <script src="../assets/common.js"></script>
   <script>
   async function doLogin(e){
     e.preventDefault();
@@ -16,7 +16,7 @@
     if (!supabaseClient) return alert('Auth no configurado.');
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
     if (error) return alert(error.message);
-    location.href = '/dist/index.html';
+    location.href = '../index.html';
   }
   window.addEventListener('DOMContentLoaded',()=>{ qs('#form').addEventListener('submit', doLogin); });
   </script>
@@ -36,9 +36,8 @@
     </div>
     <button class="btn" type="submit">Entrar</button>
   </form>
-  <p>¿Sin cuenta? <a href="/dist/auth/register.html">Regístrate</a></p>
+  <p>¿Sin cuenta? <a href="./register.html">Regístrate</a></p>
 </main>
 <footer id="site-footer"></footer>
 </body>
 </html>
-
