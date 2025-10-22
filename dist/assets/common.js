@@ -1,10 +1,13 @@
-<script>
 // --- Config & helpers ---
 const cfg = () => window.__CONFIG__ || {};
 const apiBase = () => (cfg().API_BASE_URL || '').replace(/\/$/, '');
 const fmtQ = n => new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ', maximumFractionDigits: 2 }).format(n || 0);
 const qs = (sel, root=document) => root.querySelector(sel);
 const qsa = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+// Base relativa para GitHub Pages (si estás dentro de /dist/auth/ sube un nivel)
+const BASE = (() => /\/auth\//.test(window.location.pathname) ? '../' : './')();
+window.__BASE__ = BASE;
 
 async function fetchJSON(path, opts={}) {
   const url = path.startsWith('http') ? path : `${apiBase()}${path}`;
@@ -34,7 +37,7 @@ async function getSession() {
 async function signOut() {
   if (supabaseClient) await supabaseClient.auth.signOut();
   localStorage.removeItem('cart');
-  location.href = '/dist/index.html';
+  location.href = `${BASE}index.html`;
 }
 
 // --- Header / Footer ---
@@ -43,38 +46,38 @@ async function renderChrome() {
   <div class="topbar">
     <div class="container">
       <div class="tb-left">
-        <a href="/dist/index.html" class="logo">La Bodegona Demo</a>
-        <a href="/dist/categoria.html?slug=ofertas" class="link">Ofertas</a>
-        <a href="/dist/buscar.html" class="link">Lo + nuevo</a>
+        <a href="${BASE}index.html" class="logo">La Bodegona Demo</a>
+        <a href="${BASE}categoria.html?slug=ofertas" class="link">Ofertas</a>
+        <a href="${BASE}buscar.html" class="link">Lo + nuevo</a>
         <a href="#" class="link">Envíos</a>
         <a href="#" class="link">Ayuda</a>
       </div>
       <div class="tb-right">
-        <form class="search" action="/dist/buscar.html">
+        <form class="search" action="${BASE}buscar.html">
           <input name="q" type="search" placeholder="Buscar productos" />
           <button type="submit">Buscar</button>
         </form>
-        <a href="/dist/cart.html" class="cart">Carrito (<span id="cart-count">0</span>)</a>
+        <a href="${BASE}cart.html" class="cart">Carrito (<span id="cart-count">0</span>)</a>
         <div class="account" id="account-slot">
-          <a href="/dist/auth/login.html">Iniciar sesión</a>
+          <a href="${BASE}auth/login.html">Iniciar sesión</a>
           <span class="sep">|</span>
-          <a href="/dist/auth/register.html">Registrarse</a>
+          <a href="${BASE}auth/register.html">Registrarse</a>
         </div>
       </div>
     </div>
     <nav class="mega">
-      <a href="/dist/categoria.html?slug=celulares">Celulares</a>
-      <a href="/dist/categoria.html?slug=laptops">Laptops</a>
-      <a href="/dist/categoria.html?slug=audio">Audio</a>
-      <a href="/dist/categoria.html?slug=gaming">Gaming</a>
-      <a href="/dist/categoria.html?slug=hogar">Hogar</a>
-      <a href="/dist/categoria.html?slug=herramientas">Herramientas</a>
-      <a href="/dist/categoria.html?slug=libros">Libros</a>
-      <a href="/dist/categoria.html?slug=mascotas">Mascotas</a>
-      <a href="/dist/categoria.html?slug=oficina">Oficina</a>
-      <a href="/dist/categoria.html?slug=tv-video">TV & Video</a>
-      <a href="/dist/categoria.html?slug=accesorios">Accesorios</a>
-      <a href="/dist/categoria.html?slug=deportes">Deportes</a>
+      <a href="${BASE}categoria.html?slug=celulares">Celulares</a>
+      <a href="${BASE}categoria.html?slug=laptops">Laptops</a>
+      <a href="${BASE}categoria.html?slug=audio">Audio</a>
+      <a href="${BASE}categoria.html?slug=gaming">Gaming</a>
+      <a href="${BASE}categoria.html?slug=hogar">Hogar</a>
+      <a href="${BASE}categoria.html?slug=herramientas">Herramientas</a>
+      <a href="${BASE}categoria.html?slug=libros">Libros</a>
+      <a href="${BASE}categoria.html?slug=mascotas">Mascotas</a>
+      <a href="${BASE}categoria.html?slug=oficina">Oficina</a>
+      <a href="${BASE}categoria.html?slug=tv-video">TV & Video</a>
+      <a href="${BASE}categoria.html?slug=accesorios">Accesorios</a>
+      <a href="${BASE}categoria.html?slug=deportes">Deportes</a>
     </nav>
   </div>`;
 
@@ -111,7 +114,7 @@ async function renderChrome() {
   const slot = qs('#account-slot');
   const session = await getSession();
   if (slot && session?.user) {
-    slot.innerHTML = `<span class="hi">Hola, ${(session.user.email||'Usuario')}</span> <span class="sep">|</span> <a href="/dist/account/index.html">Mi cuenta</a> <span class="sep">|</span> <button id="btn-logout" class="linklike">Cerrar sesión</button>`;
+    slot.innerHTML = `<span class="hi">Hola, ${(session.user.email||'Usuario')}</span> <span class="sep">|</span> <a href="${BASE}account/index.html">Mi cuenta</a> <span class="sep">|</span> <button id="btn-logout" class="linklike">Cerrar sesión</button>`;
     qs('#btn-logout')?.addEventListener('click', signOut);
   }
 
@@ -137,12 +140,12 @@ function cartTotal(){ return cartRead().reduce((s,i)=>s + (i.price*(i.qty||1)), 
 function productCard(p){
   const discount = p.discount_percent ? `<span class="badge off">-${p.discount_percent}%</span>` : '';
   const shipping = p.free_shipping ? `<span class="badge ship">Envío GRATIS</span>` : '';
-  const img = (p.images?.[0]?.url) || '/dist/assets/placeholder.webp';
+  const img = (p.images?.[0]?.url) || `${BASE}assets/placeholder.webp`;
   return `
   <article class="card">
-    <a class="imgwrap" href="/dist/producto.html?id=${p.id}"><img src="${img}" alt="${p.name}"></a>
+    <a class="imgwrap" href="${BASE}producto.html?id=${p.id}"><img src="${img}" alt="${p.name}"></a>
     <div class="info">
-      <a class="title" href="/dist/producto.html?id=${p.id}">${p.name}</a>
+      <a class="title" href="${BASE}producto.html?id=${p.id}">${p.name}</a>
       <div class="price">${fmtQ(p.price)} ${p.old_price?`<s>${fmtQ(p.old_price)}</s>`:''}</div>
       <div class="badges">${discount} ${shipping}</div>
       <button class="btn" data-add='${JSON.stringify({id:p.id,name:p.name,price:p.price,thumb:img})}'>Agregar</button>
@@ -203,4 +206,3 @@ window.addEventListener('DOMContentLoaded', async ()=>{
     if (btn){ cartAdd(JSON.parse(btn.getAttribute('data-add'))); }
   });
 });
-</script>
