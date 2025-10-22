@@ -1,34 +1,30 @@
+-- 03_storage.sql (compat cross-version)
 
--- 03_storage.sql
--- Crear bucket público 'products' y políticas seguras
-select storage.create_bucket('products', public := true, file_size_limit := 5242880); -- 5 MB
+-- Crea/actualiza el bucket 'products' sin usar storage.create_bucket()
+insert into storage.buckets (id, name, public)
+values ('products', 'products', true)
+on conflict (id) do update set
+  name   = excluded.name,
+  public = excluded.public;
 
--- Políticas sobre storage.objects (tabla interna)
--- Nota: usar 'bucket_id = 'products'' para delimitar al bucket.
-alter table storage.objects enable row level security;
+-- Asegura RLS en objetos del storage
+alter table if exists storage.objects enable row level security;
 
--- Lectura pública SOLO para bucket 'products'
-drop policy if exists "Public read products" on storage.objects;
-create policy "Public read products" on storage.objects
-for select using (
-  bucket_id = 'products'
-);
+-- Lectura pública SOLO del bucket 'products'
+drop policy if exists "public can read product images" on storage.objects;
+create policy "public can read product images"
+  on storage.objects for select
+  using (bucket_id = 'products');
 
--- Escritura SOLO mediante Service Role (backend) o usuarios Admin (opcional).
--- Para permitir write por Admin autenticado (no recomendado para front), se podría ligar a is_admin().
--- Aquí restringimos a Service Role vía JWT con claim 'role' = 'service_role'.
-drop policy if exists "Write by service role products" on storage.objects;
-create policy "Write by service role products" on storage.objects
-for insert with check (
-  bucket_id = 'products' and auth.role() = 'service_role'
-);
-create policy "Update by service role products" on storage.objects
-for update using (
-  bucket_id = 'products' and auth.role() = 'service_role'
-) with check (
-  bucket_id = 'products' and auth.role() = 'service_role'
-);
-create policy "Delete by service role products" on storage.objects
-for delete using (
-  bucket_id = 'products' and auth.role() = 'service_role'
-);
+-- Escritura para Admin autenticado o Service Role
+drop policy if exists "admin write product images" on storage.objects;
+create policy "admin write product images"
+  on storage.objects for all
+  using (
+    bucket_id = 'products'
+    and (is_admin(auth.uid()) or auth.role() = 'service_role')
+  )
+  with check (
+    bucket_id = 'products'
+    and (is_admin(auth.uid()) or auth.role() = 'service_role')
+  );
