@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>La Bodegona Demo — Registro</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="/dist/assets/config.js"></script>
-  <script src="/dist/assets/common.js"></script>
+  <script src="../assets/config.js"></script>
+  <script src="../assets/common.js"></script>
   <script>
   async function doRegister(e){
     e.preventDefault();
@@ -17,7 +17,7 @@
     const { error } = await supabaseClient.auth.signUp({ email, password: pass });
     if (error) return alert(error.message);
     alert('Registro exitoso. Revisa tu correo si requiere confirmación.');
-    location.href = '/dist/auth/login.html';
+    location.href = './login.html';
   }
   window.addEventListener('DOMContentLoaded',()=>{ qs('#form').addEventListener('submit', doRegister); });
   </script>
@@ -41,4 +41,3 @@
 <footer id="site-footer"></footer>
 </body>
 </html>
-
