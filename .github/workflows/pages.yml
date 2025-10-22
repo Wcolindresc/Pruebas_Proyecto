@@ -1,21 +1,45 @@
 name: Deploy Pages (/dist)
+
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/upload-pages-artifact@v3
+
+      # Si necesitas minificar o compilar algo, hazlo aquí.
+      # Para estático puro en /dist, no hace falta build.
+
+      - name: Upload artifact (dist)
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: dist        # 👈 publica la carpeta /dist
+          # Publicamos exactamente la carpeta /dist
+          path: dist
+          # 👇 Nombre único para evitar conflicto con "github-pages"
+          name: site-dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # 👇 Usamos el mismo nombre único del paso anterior
+          artifact_name: site-dist
