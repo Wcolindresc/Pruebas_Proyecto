@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>La Bodegona Demo — Carrito</title>
-  <script src="/dist/assets/config.js"></script>
-  <script src="/dist/assets/common.js"></script>
+  <script src="./assets/config.js"></script>
+  <script src="./assets/common.js"></script>
   <script>
   function drawCart(){
     const items = cartRead();
@@ -33,7 +33,7 @@
       const rm = e.target?.getAttribute?.('data-rm');
       if (rm){ cartRemove(rm); drawCart(); }
     });
-    qs('#checkout').addEventListener('click', ()=> location.href = '/dist/checkout.html');
+    qs('#checkout').addEventListener('click', ()=> location.href = './checkout.html');
   });
   </script>
 </head>
@@ -50,4 +50,3 @@
 <footer id="site-footer"></footer>
 </body>
 </html>
-
