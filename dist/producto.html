@@ -4,15 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>La Bodegona Demo — Producto</title>
-  <script src="/dist/assets/config.js"></script>
-  <script src="/dist/assets/common.js"></script>
+  <script src="./assets/config.js"></script>
+  <script src="./assets/common.js"></script>
   <script>
   async function loadPDP(){
     const id = new URL(location.href).searchParams.get('id');
     if (!id){ qs('#pdp').innerHTML = '<p>Producto no encontrado.</p>'; return; }
     try{
       const p = await fetchJSON(`/api/products/${id}`);
-      const img = (p.images?.[0]?.url) || '/dist/assets/placeholder.webp';
+      const img = (p.images?.[0]?.url) || (window.__BASE__+'assets/placeholder.webp');
       qs('#pdp').innerHTML = `
         <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px">
           <div class="gallery"><img src="${img}" alt="${p.name}" style="width:100%;border-radius:12px"></div>
