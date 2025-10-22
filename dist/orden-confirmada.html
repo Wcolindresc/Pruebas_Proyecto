@@ -1,1 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Orden confirmada</title>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  window.addEventListener('DOMContentLoaded',()=>{
+    const order = new URL(location.href).searchParams.get('order') || 'OK';
+    qs('#code').textContent = order;
+  });
+  </script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container section" style="text-align:center">
+  <h2>¡Gracias por tu compra!</h2>
+  <p>Tu número de orden es <strong id="code">—</strong>.</p>
+  <p>Te enviamos un correo con el detalle de la compra.</p>
+  <p><a class="btn" style="display:inline-block;width:auto" href="/dist/index.html">Seguir comprando</a></p>
+</main>
+<footer id="site-footer"></footer>
+</body>
+</html>
 
