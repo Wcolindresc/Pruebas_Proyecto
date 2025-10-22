@@ -1,1 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Registro</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  async function doRegister(e){
+    e.preventDefault();
+    initSupabase();
+    if (!supabaseClient) return alert('Auth no configurado.');
+    const email = qs('#email').value.trim();
+    const pass = qs('#password').value;
+    const { error } = await supabaseClient.auth.signUp({ email, password: pass });
+    if (error) return alert(error.message);
+    alert('Registro exitoso. Revisa tu correo si requiere confirmación.');
+    location.href = '/dist/auth/login.html';
+  }
+  window.addEventListener('DOMContentLoaded',()=>{ qs('#form').addEventListener('submit', doRegister); });
+  </script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container section" style="max-width:480px">
+  <h2>Crear cuenta</h2>
+  <form id="form" class="grid" style="gap:12px">
+    <div>
+      <label>Correo</label>
+      <input id="email" type="email" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <div>
+      <label>Contraseña</label>
+      <input id="password" type="password" minlength="6" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <button class="btn" type="submit">Registrarme</button>
+  </form>
+</main>
+<footer id="site-footer"></footer>
+</body>
+</html>
 
