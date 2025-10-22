@@ -1,38 +1,57 @@
-
 <!doctype html>
-<html lang="es-GT">
+<html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Producto · La Bodegonea</title>
-  <meta name="description" content="Ficha del producto con imágenes, variantes y relacionados."/>
-  <meta property="og:title" content="Producto · La Bodegonea"/>
-  <meta property="og:description" content="Ficha del producto con imágenes, variantes y relacionados."/>
-  <meta property="og:type" content="website"/>
-  <link rel="preload" href="assets/css/clean.min.css" as="style"/>
-  <link rel="stylesheet" href="assets/css/clean.min.css"/>
-  <script defer src="assets/js/app.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Producto</title>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  async function loadPDP(){
+    const id = new URL(location.href).searchParams.get('id');
+    if (!id){ qs('#pdp').innerHTML = '<p>Producto no encontrado.</p>'; return; }
+    try{
+      const p = await fetchJSON(`/api/products/${id}`);
+      const img = (p.images?.[0]?.url) || '/dist/assets/placeholder.webp';
+      qs('#pdp').innerHTML = `
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px">
+          <div class="gallery"><img src="${img}" alt="${p.name}" style="width:100%;border-radius:12px"></div>
+          <div>
+            <h1>${p.name}</h1>
+            <div class="price">${fmtQ(p.price)} ${p.old_price?`<s>${fmtQ(p.old_price)}</s>`:''}</div>
+            <p>${p.short_description||''}</p>
+            <div class="badges">${p.discount_percent?`<span class='badge off'>-${p.discount_percent}%</span>`:''} ${p.free_shipping?`<span class='badge ship'>Envío GRATIS</span>`:''}</div>
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <input id="qty" type="number" value="1" min="1" style="width:90px;padding:8px;border:1px solid #ddd;border-radius:8px">
+              <button id="add" class="btn">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+        <section class="section">
+          <h3>Descripción</h3>
+          <div>${p.description||'Sin descripción.'}</div>
+        </section>
+        <section class="section">
+          <h3>También te puede interesar</h3>
+          <div id="reco" class="grid cards"></div>
+        </section>
+      `;
+      qs('#add').addEventListener('click', ()=>{
+        const qty = Math.max(1, parseInt(qs('#qty').value||'1',10));
+        cartAdd({id:p.id, name:p.name, price:p.price, qty, thumb:img});
+      });
+      try{
+        const r = await fetchJSON(`/api/products?category=${encodeURIComponent(p.category?.slug||'')}&limit=8`);
+        qs('#reco').innerHTML = r.items.map(productCard).join('');
+      }catch{}
+    }catch(e){ qs('#pdp').innerHTML = '<p>Error al cargar producto.</p>'; }
+  }
+  window.addEventListener('DOMContentLoaded', loadPDP);
+  </script>
 </head>
 <body>
-<header class="site-header">
-  <div class="container">
-    <a class="brand" href="index.html" aria-label="Inicio">La Bodegonea</a>
-    <nav aria-label="Principal">
-      <a href="productos.html">Productos</a>
-      <a href="nosotros.html">Nosotros</a>
-      <a href="contacto.html">Contacto</a>
-    </nav>
-    <a class="cart-link" href="carrito.html" aria-label="Carrito">🛒 <span id="cart-count" aria-live="polite">0</span></a>
-  </div>
-</header>
-<main class="container">
-
-<article id="product-detail"></article>
-</main>
-<footer class="site-footer">
-  <div class="container">
-    <small>© 2025 La Bodegonea · <a href="terminos.html">Términos</a> · <a href="privacidad.html">Privacidad</a> · <a href="devoluciones.html">Devoluciones</a></small>
-  </div>
-</footer>
+<header id="site-header"></header>
+<main class="container section" id="pdp"></main>
+<footer id="site-footer"></footer>
 </body>
 </html>
