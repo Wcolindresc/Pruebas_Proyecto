@@ -1,46 +1,63 @@
-
 <!doctype html>
-<html lang="es-GT">
+<html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Inicio · La Bodegonea</title>
-  <meta name="description" content="Tienda en línea con catálogo, carrito y checkout en GTQ."/>
-  <meta property="og:title" content="Inicio · La Bodegonea"/>
-  <meta property="og:description" content="Tienda en línea con catálogo, carrito y checkout en GTQ."/>
-  <meta property="og:type" content="website"/>
-  <link rel="preload" href="assets/css/clean.min.css" as="style"/>
-  <link rel="stylesheet" href="assets/css/clean.min.css"/>
-  <script defer src="assets/js/app.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Inicio</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  async function loadHome(){
+    const hero = qs('#hero');
+    hero.innerHTML = `<div class="banner">Mega Promo de Octubre</div>`;
+
+    try{
+      const cats = await fetchJSON('/api/categories');
+      qs('#cats').innerHTML = cats.slice(0,12).map(c=>`<a class="card cat" href="/dist/categoria.html?slug=${c.slug}"><div class="imgwrap"><img src="${c.image||'/dist/assets/placeholder.webp'}" alt="${c.name}"></div><div class="info"><div class="title">${c.name}</div></div></a>`).join('');
+    }catch{
+      qs('#cats').innerHTML = ['Celulares','Laptops','Audio','Gaming','Hogar','Herramientas','Libros','Mascotas','Oficina','TV & Video','Accesorios','Deportes'].map(n=>`<a class="card cat" href="/dist/categoria.html?slug=${n.toLowerCase()}"><div class="imgwrap"></div><div class="info"><div class="title">${n}</div></div></a>`).join('');
+    }
+
+    for (const blk of [
+      {id:'new', title:'Lo + nuevo', query:'/api/products?sort=new&limit=12'},
+      {id:'deals', title:'Ofertas', query:'/api/products?tag=offer&limit=12'},
+      {id:'reco', title:'Recomendados', query:'/api/products?tag=recommended&limit=12'}
+    ]){
+      try{
+        const data = await fetchJSON(blk.query);
+        qs(`#${blk.id} .grid.cards`).innerHTML = data.items.map(productCard).join('');
+      }catch(e){ qs(`#${blk.id} .grid.cards`).innerHTML = '<p>No hay productos.</p>'; }
+    }
+  }
+  window.addEventListener('DOMContentLoaded', loadHome);
+  </script>
 </head>
 <body>
-<header class="site-header">
-  <div class="container">
-    <a class="brand" href="index.html" aria-label="Inicio">La Bodegonea</a>
-    <nav aria-label="Principal">
-      <a href="productos.html">Productos</a>
-      <a href="nosotros.html">Nosotros</a>
-      <a href="contacto.html">Contacto</a>
-    </nav>
-    <a class="cart-link" href="carrito.html" aria-label="Carrito">🛒 <span id="cart-count" aria-live="polite">0</span></a>
-  </div>
-</header>
-<main class="container">
+  <header id="site-header"></header>
+  <main class="container">
+    <section class="hero section" id="hero"></section>
 
-<section class="hero">
-  <h1>Compra fácil, rápido y seguro</h1>
-  <p>Catálogo actualizado, ofertas y entregas a domicilio en Guatemala.</p>
-  <a class="btn" href="productos.html">Explorar productos</a>
-</section>
-<section>
-  <h2>Novedades</h2>
-  <div id="grid-products" class="grid" data-source="latest"></div>
-</section>
-</main>
-<footer class="site-footer">
-  <div class="container">
-    <small>© 2025 La Bodegonea · <a href="terminos.html">Términos</a> · <a href="privacidad.html">Privacidad</a> · <a href="devoluciones.html">Devoluciones</a></small>
-  </div>
-</footer>
+    <section class="section">
+      <h2>Categorías destacadas</h2>
+      <div id="cats" class="grid cards"></div>
+    </section>
+
+    <section id="new" class="section">
+      <h2>Lo + nuevo</h2>
+      <div class="grid cards"></div>
+    </section>
+
+    <section id="deals" class="section">
+      <h2>Ofertas</h2>
+      <div class="grid cards"></div>
+    </section>
+
+    <section id="reco" class="section">
+      <h2>Recomendados</h2>
+      <div class="grid cards"></div>
+    </section>
+  </main>
+  <footer id="site-footer"></footer>
 </body>
 </html>
