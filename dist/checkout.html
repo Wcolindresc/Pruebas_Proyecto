@@ -1,47 +1,69 @@
-
 <!doctype html>
-<html lang="es-GT">
+<html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Checkout · La Bodegonea</title>
-  <meta name="description" content="Confirmación de pedido y datos de entrega."/>
-  <meta property="og:title" content="Checkout · La Bodegonea"/>
-  <meta property="og:description" content="Confirmación de pedido y datos de entrega."/>
-  <meta property="og:type" content="website"/>
-  <link rel="preload" href="assets/css/clean.min.css" as="style"/>
-  <link rel="stylesheet" href="assets/css/clean.min.css"/>
-  <script defer src="assets/js/app.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Checkout</title>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  async function submitOrder(e){
+    e.preventDefault();
+    const items = cartRead();
+    if (!items.length) return alert('Tu carrito está vacío.');
+    const payload = {
+      customer: {
+        full_name: qs('#full_name').value,
+        email: qs('#email').value,
+        phone: qs('#phone').value,
+        address: qs('#address').value,
+        city: qs('#city').value
+      },
+      items: items.map(i=>({ product_id: i.id, quantity: i.qty, price: i.price }))
+    };
+    try{
+      const r = await fetchJSON('/api/orders/checkout', { method:'POST', body: JSON.stringify(payload) });
+      localStorage.removeItem('cart');
+      location.href = `/dist/orden-confirmada.html?order=${encodeURIComponent(r.order_id||'OK')}`;
+    }catch(e){ alert('No se pudo procesar la orden.'); }
+  }
+  window.addEventListener('DOMContentLoaded',()=>{
+    qs('#total').textContent = fmtQ(cartTotal());
+    qs('#form').addEventListener('submit', submitOrder);
+  });
+  </script>
 </head>
 <body>
-<header class="site-header">
-  <div class="container">
-    <a class="brand" href="index.html" aria-label="Inicio">La Bodegonea</a>
-    <nav aria-label="Principal">
-      <a href="productos.html">Productos</a>
-      <a href="nosotros.html">Nosotros</a>
-      <a href="contacto.html">Contacto</a>
-    </nav>
-    <a class="cart-link" href="carrito.html" aria-label="Carrito">🛒 <span id="cart-count" aria-live="polite">0</span></a>
-  </div>
-</header>
-<main class="container">
-
-<section>
-  <h1>Checkout</h1>
-  <form id="checkout-form">
-    <label>Nombre completo<input required name="name"/></label>
-    <label>Correo electrónico<input required type="email" name="email"/></label>
-    <label>Dirección de entrega<textarea required name="address"></textarea></label>
-    <button class="btn" type="submit">Confirmar pedido</button>
+<header id="site-header"></header>
+<main class="container section">
+  <h2>Checkout</h2>
+  <form id="form" class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <label>Nombre completo</label>
+      <input id="full_name" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <div>
+      <label>Correo</label>
+      <input id="email" type="email" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <div>
+      <label>Teléfono</label>
+      <input id="phone" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <div>
+      <label>Dirección</label>
+      <input id="address" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <div>
+      <label>Ciudad</label>
+      <input id="city" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px" />
+    </div>
+    <div style="display:flex;align-items:end;justify-content:space-between">
+      <div style="font-weight:700">Total: <span id="total">Q0.00</span></div>
+      <button class="btn" type="submit" style="width:auto">Confirmar compra</button>
+    </div>
   </form>
-  <p class="muted">Se enviará confirmación por correo (simulado).</p>
-</section>
 </main>
-<footer class="site-footer">
-  <div class="container">
-    <small>© 2025 La Bodegonea · <a href="terminos.html">Términos</a> · <a href="privacidad.html">Privacidad</a> · <a href="devoluciones.html">Devoluciones</a></small>
-  </div>
-</footer>
+<footer id="site-footer"></footer>
 </body>
 </html>
