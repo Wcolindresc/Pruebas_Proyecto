@@ -16,6 +16,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: dist        # 👈 publica la carpeta /dist
       - id: deployment
         uses: actions/deploy-pages@v4
