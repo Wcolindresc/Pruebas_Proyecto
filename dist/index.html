@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>La Bodegona Demo — Inicio</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="/dist/assets/config.js"></script>
-  <script src="/dist/assets/common.js"></script>
+  <script src="./assets/config.js"></script>
+  <script src="./assets/common.js"></script>
   <script>
   async function loadHome(){
     const hero = qs('#hero');
@@ -14,9 +14,15 @@
 
     try{
       const cats = await fetchJSON('/api/categories');
-      qs('#cats').innerHTML = cats.slice(0,12).map(c=>`<a class="card cat" href="/dist/categoria.html?slug=${c.slug}"><div class="imgwrap"><img src="${c.image||'/dist/assets/placeholder.webp'}" alt="${c.name}"></div><div class="info"><div class="title">${c.name}</div></div></a>`).join('');
+      qs('#cats').innerHTML = cats.slice(0,12).map(c=>`
+        <a class="card cat" href="./categoria.html?slug=${c.slug}">
+          <div class="imgwrap"><img src="${c.image || (window.__BASE__+'assets/placeholder.webp')}" alt="${c.name}"></div>
+          <div class="info"><div class="title">${c.name}</div></div>
+        </a>`).join('');
     }catch{
-      qs('#cats').innerHTML = ['Celulares','Laptops','Audio','Gaming','Hogar','Herramientas','Libros','Mascotas','Oficina','TV & Video','Accesorios','Deportes'].map(n=>`<a class="card cat" href="/dist/categoria.html?slug=${n.toLowerCase()}"><div class="imgwrap"></div><div class="info"><div class="title">${n}</div></div></a>`).join('');
+      const ph = window.__BASE__+'assets/placeholder.webp';
+      qs('#cats').innerHTML = ['Celulares','Laptops','Audio','Gaming','Hogar','Herramientas','Libros','Mascotas','Oficina','TV & Video','Accesorios','Deportes']
+        .map(n=>`<a class="card cat" href="./categoria.html?slug=${n.toLowerCase()}"><div class="imgwrap"><img src="${ph}" alt="${n}"></div><div class="info"><div class="title">${n}</div></div></a>`).join('');
     }
 
     for (const blk of [
@@ -61,3 +67,4 @@
   <footer id="site-footer"></footer>
 </body>
 </html>
+
