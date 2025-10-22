@@ -1,1 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Carrito</title>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  function drawCart(){
+    const items = cartRead();
+    const list = qs('#items');
+    if (!items.length){
+      list.innerHTML = '<p>Tu carrito está vacío.</p>';
+      qs('#total').textContent = fmtQ(0);
+      return;
+    }
+    list.innerHTML = items.map(i=>`
+      <div class="row" style="display:grid;grid-template-columns:80px 1fr auto auto;gap:10px;align-items:center;border-bottom:1px solid #eee;padding:10px 0">
+        <img src="${i.thumb}" alt="${i.name}" style="width:80px;height:80px;object-fit:cover;border-radius:8px">
+        <div>
+          <div style="font-weight:600">${i.name}</div>
+          <div>${fmtQ(i.price)} x ${i.qty}</div>
+        </div>
+        <div>${fmtQ(i.price*i.qty)}</div>
+        <button class="linklike" data-rm="${i.id}">Quitar</button>
+      </div>`).join('');
+    qs('#total').textContent = fmtQ(cartTotal());
+  }
+  window.addEventListener('DOMContentLoaded', ()=>{
+    drawCart();
+    document.body.addEventListener('click', e=>{
+      const rm = e.target?.getAttribute?.('data-rm');
+      if (rm){ cartRemove(rm); drawCart(); }
+    });
+    qs('#checkout').addEventListener('click', ()=> location.href = '/dist/checkout.html');
+  });
+  </script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container section">
+  <h2>Tu carrito</h2>
+  <div id="items"></div>
+  <div style="display:flex;justify-content:flex-end;gap:16px;align-items:center;margin-top:12px">
+    <div style="font-weight:700">Total: <span id="total">Q0.00</span></div>
+    <button id="checkout" class="btn" style="width:auto">Continuar compra</button>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+</body>
+</html>
 
