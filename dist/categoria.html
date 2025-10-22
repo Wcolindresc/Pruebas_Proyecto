@@ -1,1 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Bodegona Demo — Categoría</title>
+  <script src="/dist/assets/config.js"></script>
+  <script src="/dist/assets/common.js"></script>
+  <script>
+  async function loadCategory(){
+    const url = new URL(location.href);
+    const slug = url.searchParams.get('slug') || '';
+    qs('#title').textContent = slug ? slug.toUpperCase() : 'Catálogo';
+
+    const min = url.searchParams.get('min');
+    const max = url.searchParams.get('max');
+    const sort = url.searchParams.get('sort') || 'relevance';
+
+    const params = new URLSearchParams({ category: slug, min:min||'', max:max||'', sort });
+    try{
+      const data = await fetchJSON(`/api/products?${params.toString()}`);
+      qs('#list').innerHTML = (data.items||[]).map(productCard).join('') || '<p>Sin resultados</p>';
+    }catch(e){ qs('#list').innerHTML = '<p>Error cargando productos.</p>'; }
+  }
+  window.addEventListener('DOMContentLoaded', ()=>{
+    loadCategory();
+    qs('#filter-form').addEventListener('submit', e=>{
+      e.preventDefault();
+      const min = qs('#min').value; const max = qs('#max').value; const sort = qs('#sort').value; const u = new URL(location.href);
+      if (min) u.searchParams.set('min', min); else u.searchParams.delete('min');
+      if (max) u.searchParams.set('max', max); else u.searchParams.delete('max');
+      u.searchParams.set('sort', sort);
+      location.href = u.toString();
+    });
+  });
+  </script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container section">
+  <h2 id="title">Categoría</h2>
+  <form id="filter-form" class="filters" style="display:flex;gap:8px;align-items:end;margin:12px 0">
+    <div><label>Mín</label><input id="min" type="number" min="0" step="1" placeholder="0"></div>
+    <div><label>Máx</label><input id="max" type="number" min="0" step="1" placeholder="10000"></div>
+    <div><label>Orden</label>
+      <select id="sort">
+        <option value="relevance">Relevancia</option>
+        <option value="price_asc">Precio ↑</option>
+        <option value="price_desc">Precio ↓</option>
+        <option value="new">Novedades</option>
+      </select>
+    </div>
+    <button class="btn" type="submit" style="width:auto">Aplicar</button>
+  </form>
+  <div id="list" class="grid cards"></div>
+</main>
+<footer id="site-footer"></footer>
+</body>
+</html>
 
